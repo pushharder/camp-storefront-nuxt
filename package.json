@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "@pinia/nuxt": "^0.5.1",
-    "axios": "^1.6.6",
+    "axios": "^1.7.4",
     "pinia": "^2.1.7"
   }
 }
