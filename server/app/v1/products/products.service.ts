@@ -1,6 +1,12 @@
-import { getMagentoProducts, getMagentoVariants } from '~/server/data/magento/products'
+import {
+  getMagentoProductByCode,
+  getMagentoProductBySKU,
+  getMagentoProducts,
+  getMagentoVariants
+} from '~/server/data/magento/products'
 import type { ProductsResponse } from '~/types/api/bff/v1/products.types'
-import { mapMagentoProducts } from '~/server/app/v1/products/products.mapper'
+import { mapMagentoProductDetails, mapMagentoProducts } from '~/server/app/v1/products/products.mapper'
+import type { ProductDetails } from '~/types/api/bff/v1/product-details.types'
 
 export const getProductsByCategory = async (limit: number, offset: number, categoryId: string): Promise<ProductsResponse> => {
   const magentoProductsResponse = await getMagentoProducts(limit, offset, categoryId)
@@ -26,4 +32,11 @@ export const getProductsByCategory = async (limit: number, offset: number, categ
     total: magentoProductsResponse.total_count,
     results: mapMagentoProducts(productsWithVariants)
   }
+}
+
+export const getProductBySKU = async (sku: string): Promise<ProductDetails> => {
+  const code = sku.split('-')[0]
+  const [productVariantDetails, productDetails] = await Promise.all([getMagentoProductBySKU(sku), getMagentoProductByCode(code)])
+
+  return mapMagentoProductDetails(productVariantDetails, productDetails)
 }

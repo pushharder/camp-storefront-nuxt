@@ -1,21 +1,24 @@
 import { defineStore } from 'pinia'
-import type { Product, ProductsGet200Response } from '~/types/interfaces'
-import type { Category as C } from '~/types/api/bff/v1/categories.types'
+import type { ProductsGet200Response } from '~/types/interfaces'
+import type { Category } from '~/types/api/bff/v1/categories.types'
 import api from '~/api/api'
 import ProductDTO from '~/DTO/Product'
 import { MAX_PAGE_PRODUCTS_COUNT, START_PAGE_NUMBER } from '~/utils/constants'
-import singleProductData from '@/mock_data/product.json'
 import CategoryTree from '~/DTO/categories/CategoriesTree'
+import type { AttributesResponse } from '~/types/api/bff/v1/attributes.types'
+import ProductDetailsDTO from '~/DTO/ProductDetails'
+import type { ProductDetails } from '~/types/api/bff/v1/product-details.types'
 
 interface State {
   productsInfo: {
     total: number | null
     products: ProductDTO[]
   }
-  selectedProduct: ProductDTO | null
+  selectedProduct: ProductDetailsDTO | null
   categoriesTree: CategoryTree | null
   selectedCategory: CategoryTree | null
   defaultCategoryId?: number | string
+  attributes: AttributesResponse
   categoriesMocked: boolean
   productsMocked: boolean
   pdpIsMocked: boolean
@@ -34,6 +37,12 @@ export default defineStore('product', {
     defaultCategoryId: 0,
     productsMocked: false,
     pdpIsMocked: false,
+    attributes: {
+      options: {
+        color: [],
+        size: []
+      }
+    }
   }),
 
   actions: {
@@ -59,7 +68,7 @@ export default defineStore('product', {
       this.selectedCategory = getSelectedCategory(this.categoriesTree, slugs) || this.categoriesTree
     },
     async getCategories(): Promise<void> {
-        const { data } = await api<C>({
+        const { data } = await api<Category>({
           url: '/categories',
           method: 'get',
         })
@@ -85,31 +94,25 @@ export default defineStore('product', {
     },
 
     async getProduct(sku: string) {
-      try {
-        this.selectedProduct = null
-        const { data } = await api<Product>({
-          url: '/products/$sku',
-          method: 'get',
-          pathParams: {
-            $sku: sku,
-          },
-        })
+      this.selectedProduct = null
+      const { data } = await api<ProductDetails>({
+        url: '/products/$sku',
+        method: 'get',
+        pathParams: {
+          $sku: sku,
+        },
+      })
 
-        this.selectedProduct = new ProductDTO(data)
-      } catch {
-        const data = await new Promise<Product>((resolve) => {
-          setTimeout(() => {
-            const productWithVariant = {
-              ...singleProductData,
-              masterVariant: singleProductData.variants.find(variant => variant.sku === sku) || singleProductData.masterVariant
-            }
-
-            resolve(productWithVariant as Product)
-          }, 1000)
-        })
-        this.selectedProduct = new ProductDTO(data)
-        this.pdpIsMocked = true
-      }
+      this.selectedProduct = new ProductDetailsDTO(data, this.attributes.options.color, this.attributes.options.size)
     },
+
+    async getAttributes() {
+      const { data } = await api<AttributesResponse>({
+        url: '/attributes',
+        method: 'get',
+      })
+
+      this.attributes = data
+    }
   },
 })

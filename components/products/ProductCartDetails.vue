@@ -10,7 +10,7 @@
       {{ product.name }}
     </h1>
     <strong class="block font-bold typography-headline-3">{{
-      centsToDollars(product.masterVariant.price.centAmount)
+        toDollars(product.price)
     }}</strong>
     <div class="inline-flex items-center mt-4 mb-2">
       <SfRating size="xs" :value="3" :max="5" />
@@ -103,12 +103,12 @@ import {
 } from '@storefront-ui/vue'
 import { clamp } from '@storefront-ui/shared'
 import { useCounter } from '@vueuse/core'
-import type ProductDTO from '~/DTO/Product'
-import { centsToDollars } from '~/utils/helpers'
-import { useCart, useAlerts } from '@/stores';
+import { toDollars } from '~/utils/helpers'
+import { useCart, useAlerts } from '@/stores'
+import type ProductDetailsDTO from '~/DTO/ProductDetails'
 
 const props = defineProps<{
-  product: ProductDTO
+  product: ProductDetailsDTO
 }>()
 
 const cart = useCart()
@@ -124,7 +124,7 @@ function handleOnChange(event: Event) {
 }
 
 async function addToCart() {
-  await cart.addProductToCart(props.product.masterVariant.sku, count.value)
+  await cart.addProductToCart(props.product.sku, count.value)
   alerts.addAlert({ message: 'Product added to cart', type: 'success' })
 }
 </script>
