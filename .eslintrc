@@ -23,6 +23,7 @@
     "vue/no-v-html": "off",
     "vue/first-attribute-linebreak": "off",
     "comma-dangle": "off",
-    "no-use-before-define": "off"
+    "no-use-before-define": "off",
+    "@typescript-eslint/no-explicit-any": "off"
   }
 }
