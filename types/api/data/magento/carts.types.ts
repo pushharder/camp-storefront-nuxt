@@ -28,3 +28,57 @@ export interface MagentoChangeCartItemQuantityPayload {
     quote_id: string
   }
 }
+
+export interface MagentoSetShippingAddressPayload {
+  addressInformation: {
+    shipping_address: {
+      city: string
+      country_id: string
+      email: string
+      firstname: string
+      lastname: string
+      postcode: string
+      region: string
+      region_code: string
+      region_id?: number
+      street: string[]
+      telephone: string
+    }
+    shipping_carrier_code?: string
+    shipping_method_code?: string
+  }
+}
+
+export interface MagentoPlaceOrderPayload {
+  paymentMethod: {
+    method: string
+  }
+}
+
+export interface MagentoPaymentMethod {
+  code: string
+  title: string
+}
+
+export interface MagentoEstimateShippingMethodPayload {
+  address: {
+    city: string
+    country_id: string
+    email: string
+    firstname: string
+    lastname: string
+    postcode: string
+    region: string
+    region_code: string
+    region_id?: number
+    street: string[]
+    telephone: string
+  }
+}
+
+export interface MagentoShippingMethod {
+  carrier_code: string
+  method_code: string
+  carrier_title: string
+  method_title: string
+}

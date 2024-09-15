@@ -1,6 +1,13 @@
 import { H3Event } from 'h3'
-import { addCartItem, changeQuantity, createCart, getCart, removeItem } from '~/server/app/v1/carts/carts.service'
-import { UpdateCartPayload } from '~/types/api/bff/v1/carts.types'
+import {
+  addCartItem,
+  changeQuantity,
+  createCart,
+  getCart, placeOrder,
+  removeItem,
+  setShippingAddress
+} from '~/server/app/v1/carts/carts.service'
+import type { UpdateCartPayload } from '~/types/api/bff/v1/carts.types'
 
 export const createCartHandler = (_event: H3Event) => {
   return createCart()
@@ -27,4 +34,14 @@ export const updateCartHandler = async (event: H3Event) => {
   if (body.action === 'RemoveLineItem') {
     return removeItem(cartId!, body)
   }
+
+  if (body.action === 'SetShippingAddress') {
+    return setShippingAddress(cartId!, body)
+  }
+}
+
+export const placeOrderHandler = async (event: H3Event) => {
+  const cartId = getRouterParam(event, 'id')
+
+  return placeOrder(cartId!)
 }

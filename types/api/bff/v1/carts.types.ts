@@ -28,6 +28,7 @@ export type UpdateCartPayload = {
   AddLineItem?: AddToCartAction
   RemoveLineItem?: UpdateCartAction
   ChangeLineItemQuantity?: UpdateCartAction
+  SetShippingAddress?: SetShippingAddressAction
 }
 
 export interface UpdateCartAction {
@@ -40,4 +41,16 @@ export interface AddToCartAction {
   quantity: number
 }
 
-export type UpdateCartAvailableActionTypes = 'AddLineItem' | 'RemoveLineItem' | 'ChangeLineItemQuantity'
+export interface SetShippingAddressAction {
+  country: string
+  firstName: string
+  lastName: string
+  streetName: string
+  streetNumber: string
+  postalCode: string
+  city: string
+  region: string
+  email: string
+}
+
+export type UpdateCartAvailableActionTypes = 'AddLineItem' | 'RemoveLineItem' | 'ChangeLineItemQuantity' | 'SetShippingAddress'

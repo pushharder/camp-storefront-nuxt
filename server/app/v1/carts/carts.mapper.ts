@@ -1,5 +1,5 @@
-import { type Cart, CartLineItem } from '~/types/api/bff/v1/carts.types'
-import { ProductDetails } from '~/types/api/bff/v1/product-details.types'
+import type { Cart, CartLineItem } from '~/types/api/bff/v1/carts.types'
+import type { ProductDetails } from '~/types/api/bff/v1/product-details.types'
 import type { MagentoCart, MagentoCartLineItem } from '~/types/api/data/magento/carts.types'
 
 export const mapMagentoCart = (id: string, cart: MagentoCart, items: MagentoCartLineItem[], details: ProductDetails[]): Cart => {

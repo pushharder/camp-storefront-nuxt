@@ -35,6 +35,7 @@ export default defineStore('cart', {
                     method: 'post'
                 })
                 this.cacheCart(response.data)
+                this.loadCart()
             } catch (error) {
                 console.info('Error creating a new cart. Falling back to mocked cart')
             }
