@@ -1,9 +1,9 @@
-const magentoBaseURL = 'https://magento.sandbox.epamdev.com/rest/all'
+export const magentoBaseURL = 'https://magento.sandbox.epamdev.com/rest/all'
 
 export const magentoFetch = $fetch.create({
-  baseURL: magentoBaseURL as string,
+  baseURL: magentoBaseURL,
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json'
+    Accept: 'application/json'
   }
 })

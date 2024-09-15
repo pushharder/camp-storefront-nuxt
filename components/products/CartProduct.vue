@@ -1,14 +1,14 @@
 <template>
   <div
-    v-if="lineItem.variant"
+    v-if="lineItem"
     class="flex border-b-[1px] border-neutral-200 hover:shadow-lg min-w-[320px] max-w-[640px] p-4"
   >
     <div class="relative overflow-hidden rounded-md w-[100px] sm:w-[176px]">
       <SfLink href="#">
         <img
           class="w-full h-auto border rounded-md border-neutral-200"
-          :src="lineItem.variant && lineItem.variant.images && lineItem.variant.images[0] && lineItem.variant.images[0].url"
-          :alt="lineItem.variant.name"
+          :src="lineItem && lineItem?.details?.images && lineItem?.details?.images[0]"
+          :alt="lineItem.details?.name"
           width="176"
           height="176"
         />
@@ -20,7 +20,7 @@
         variant="secondary"
         class="no-underline typography-text-sm sm:typography-text-lg"
       >
-        {{ lineItem.variant.name }}
+        {{ lineItem.details?.name }}
       </SfLink>
       <div class="my-2 sm:mb-0">
         <ul class="font-normal leading-5 typography-text-xs sm:typography-text-sm text-neutral-700">
@@ -109,47 +109,31 @@
   } from '@storefront-ui/vue'
   import { clamp } from '@storefront-ui/shared'
   import { useCounter } from '@vueuse/core'
-  import type { CartLineItemsInner, ProductAttribute } from '~/types/interfaces'
-  import { useCart, useAlerts } from '@/stores'
+  import { useCart, useAlerts, useProductStore } from '@/stores'
+  import type { CartLineItem } from '~/types/api/bff/v1/carts.types'
 
   const props = defineProps<{
-    lineItem: CartLineItemsInner
+    lineItem: CartLineItem
   }>()
 
   const cartStore = useCart()
+  const { attributes } = useProductStore()
   const alerts = useAlerts()
 
-  const sizeName = computed(() => {
-    const sizeAtribute = props.lineItem.variant?.attributes &&
-      props.lineItem.variant?.attributes.find((option: ProductAttribute) => option.name === 'Size')
+  const sizeName = computed(() =>
+    attributes.options.size.find(size => size.value === props.lineItem.details?.size)?.label
+  )
 
-    return sizeAtribute?.value?.label || 'unknown'
-  })
+  const colorName = computed(() =>
+    attributes.options.color.find(color => color.value === props.lineItem.details?.color)?.label
+  )
 
-  const colorName = computed(() => {
-    const sizeAtribute = props.lineItem.variant?.attributes &&
-      props.lineItem.variant?.attributes.find((option: ProductAttribute) => option.name === 'Color')
-
-    return sizeAtribute?.value?.label || 'unknown'
-  })
-
-  const priceValue = computed(() => {
-    const prices = props.lineItem.variant?.prices
-    let priceValue = 0
-    let currency = 'EUR'
-
-    if (prices && prices.length) {
-      const quantity = props.lineItem.quantity || 1
-
-      priceValue = ((prices[0].value?.centAmount || 0) * quantity) / 100
-      currency = prices[0].value?.currencyCode as string
-    }
-
-    return Intl.NumberFormat(
+  const priceValue = computed(() =>
+    Intl.NumberFormat(
       (new Intl.NumberFormat()).resolvedOptions().locale,
-      { style: 'currency', currency }
-    ).format(priceValue)
-  })
+      { style: 'currency', currency: props.lineItem.currencyCode }
+    ).format(props.lineItem.totalPrice!)
+  )
 
   const min = ref(1)
   const max = ref(10)
