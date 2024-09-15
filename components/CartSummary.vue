@@ -102,8 +102,8 @@
 <script lang="ts" setup>
 import { ref, computed } from 'vue'
 import { SfButton, SfInput, SfIconClose, SfIconCheckCircle } from '@storefront-ui/vue'
-import type { Cart } from '~/types/interfaces'
 import SfButtonLink from '~/components/base/SfButtonLink.vue'
+import type { Cart } from '~/types/api/bff/v1/carts.types'
 
 const props = defineProps<{
   cart: Cart
