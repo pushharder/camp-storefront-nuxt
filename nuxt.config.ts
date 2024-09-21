@@ -1,8 +1,12 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  devtools: { enabled: true },
+  devtools: { enabled: false },
   typescript: {
     typeCheck: true,
+  },
+  runtimeConfig: {
+    service: 'magento',
+    token: 'f5W92Fz-9L5jEncdSNGeaYzCBhk0S50x'
   },
   app: {
     head: {

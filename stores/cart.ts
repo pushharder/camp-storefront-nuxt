@@ -1,8 +1,9 @@
 import { defineStore } from 'pinia'
 import api from '~/api/api'
-import type { Address, Cart, CartLineItemsInner } from '~/types/interfaces'
+import type { Address, CartLineItemsInner } from '~/types/interfaces'
 import { getStorage } from '~/utils/localStorage'
 import * as mockedCart from '~/utils/mockedCartApi'
+import type { Cart } from '~/types/api/bff/v1/carts.types'
 
 interface State {
     cart: Cart;
@@ -54,16 +55,17 @@ export default defineStore('cart', {
                 console.info('Error loading cart. Falling back to mocked cart')
             }
         },
-        async addProductToCart(productSKU: string, quantity: number): Promise<void> {
+        async addProductToCart(productSKU: string, productId: string, quantity: number): Promise<void> {
             try {
                 await api<Cart>({
                     url: `/carts/${this.cart.id}`,
                     method: 'put',
                     data: {
-                        version: (this.cart.version || 0) + 1,
+                        version: this.cart.version,
                         action: 'AddLineItem',
                         AddLineItem: {
                             variantId: productSKU,
+                            productId: productId,
                             quantity
                         }
                     }
@@ -88,7 +90,7 @@ export default defineStore('cart', {
                     url: `/carts/${this.cart.id}`,
                     method: 'put',
                     data: {
-                        version: (this.cart.version || 0) + 1,
+                        version: this.cart.version,
                         action: 'ChangeLineItemQuantity',
                         ChangeLineItemQuantity: {
                             lineItemId: lineItem.id,
@@ -116,7 +118,7 @@ export default defineStore('cart', {
                     url: `/carts/${this.cart.id}`,
                     method: 'put',
                     data: {
-                        version: (this.cart.version || 0) + 1,
+                        version: this.cart.version,
                         action: 'RemoveLineItem',
                         RemoveLineItem: {
                             lineItemId: lineItem.id,
@@ -145,7 +147,7 @@ export default defineStore('cart', {
                     url: `/carts/${this.cart.id}`,
                     method: 'put',
                     data: {
-                        version: (this.cart.version || 0) + 1,
+                        version: this.cart.version,
                         action: 'SetShippingAddress',
                         SetShippingAddress: address
                     }
@@ -162,7 +164,6 @@ export default defineStore('cart', {
                 console.error(error)
 
                 console.info('Error setting address. Falling back to mocked cart')
-                // But we don't any where
                 this.address = address
             }
         },
@@ -172,7 +173,9 @@ export default defineStore('cart', {
                 const order = await api<Cart>({
                     url: `/carts/${this.cart.id}/order`,
                     method: 'post',
-                    data: {}
+                    data: {
+                        version: this.cart.version,
+                    }
                 })
 
                 this.orderId = order.data.id

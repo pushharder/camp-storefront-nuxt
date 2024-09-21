@@ -1,12 +1,12 @@
 import { type ProductDetails } from '~/types/api/bff/v1/product-details.types'
 
 export interface Cart {
-  id: string
+  id?: string
   version?: number
   customerId?: string
   lineItems?: CartLineItem[]
   totalPrice?: CartTotalPrice
-  totalQuantity: number
+  totalQuantity?: number
 }
 
 export interface CartLineItem {
@@ -38,6 +38,7 @@ export interface UpdateCartAction {
 
 export interface AddToCartAction {
   variantId: string
+  productId: string
   quantity: number
 }
 

@@ -65,7 +65,7 @@
   const cartStore = useCart()
 
   async function addToCart() {
-    await cartStore.addProductToCart(props.product.masterVariant.sku, 1)
+    await cartStore.addProductToCart(props.product.masterVariant.sku, props.product.id, 1)
     addAlert({ message: 'Product added to cart', type: 'success' })
   }
 </script>

@@ -1,14 +1,14 @@
-export type ProductDetails = {
-  id: number
+export interface ProductDetails {
+  id: string
   name: string
   description?: string
-  price: number
+  price?: number
   images: string[]
   slug?: string
-  sku: string
-  code: string
-  size: string
-  color: string
-  sizes: number[]
-  colors: number[]
+  sku?: string
+  code?: string
+  size?: string
+  color?: string
+  sizes?: string[]
+  colors?: string[]
 }

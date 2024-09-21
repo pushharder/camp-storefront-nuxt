@@ -3,10 +3,10 @@ import type { Category } from '~/types/api/bff/v1/categories.types'
 
 export const mapMagentoCategories = (magentoCategory: MagentoCategory): Category => {
   const category: Category = {
-    id: magentoCategory.id,
+    id: magentoCategory.id.toString(),
     name: magentoCategory.name,
     parent: magentoCategory.level !== 1
-      ? { id: magentoCategory.parent_id }
+      ? { id: magentoCategory.parent_id.toString() }
       : null,
   }
 

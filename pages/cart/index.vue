@@ -51,7 +51,7 @@ const cartStore = useCart()
 const cart = computed(() => cartStore.cart)
 
 onBeforeMount(async () => {
-  await cartStore.loadCart()
+  // await cartStore.loadCart()
 })
 
 definePageMeta({

@@ -1,22 +1,15 @@
 import { H3Event } from 'h3'
-import {
-  addCartItem,
-  changeQuantity,
-  createCart,
-  getCart, placeOrder,
-  removeItem,
-  setShippingAddress
-} from '~/server/app/v1/carts/carts.service'
 import type { UpdateCartPayload } from '~/types/api/bff/v1/carts.types'
+import { cartsServiceFactory } from '~/server/app/v1/carts/services'
 
 export const createCartHandler = (_event: H3Event) => {
-  return createCart()
+  return cartsServiceFactory().createCart()
 }
 
 export const getCartByIdHandler = (event: H3Event) => {
   const id = getRouterParam(event, 'id')
 
-  return getCart(id as string)
+  return cartsServiceFactory().getCart(id as string)
 }
 
 export const updateCartHandler = async (event: H3Event) => {
@@ -24,24 +17,25 @@ export const updateCartHandler = async (event: H3Event) => {
   const body: UpdateCartPayload = await readBody(event)
 
   if (body.action === 'AddLineItem') {
-    return addCartItem(cartId!, body)
+    return cartsServiceFactory().addCartItem(cartId!, body)
   }
 
   if (body.action === 'ChangeLineItemQuantity') {
-    return changeQuantity(cartId!, body)
+    return cartsServiceFactory().changeQuantity(cartId!, body)
   }
 
   if (body.action === 'RemoveLineItem') {
-    return removeItem(cartId!, body)
+    return cartsServiceFactory().removeItem(cartId!, body)
   }
 
   if (body.action === 'SetShippingAddress') {
-    return setShippingAddress(cartId!, body)
+    return cartsServiceFactory().setShippingAddress(cartId!, body)
   }
 }
 
 export const placeOrderHandler = async (event: H3Event) => {
   const cartId = getRouterParam(event, 'id')
+  const body: UpdateCartPayload = await readBody(event)
 
-  return placeOrder(cartId!)
+  return cartsServiceFactory().placeOrder(cartId!, body.version!)
 }

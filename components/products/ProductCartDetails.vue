@@ -105,7 +105,7 @@ import { clamp } from '@storefront-ui/shared'
 import { useCounter } from '@vueuse/core'
 import { toDollars } from '~/utils/helpers'
 import { useCart, useAlerts } from '@/stores'
-import type ProductDetailsDTO from '~/DTO/ProductDetails'
+import ProductDetailsDTO from '~/DTO/ProductDetails'
 
 const props = defineProps<{
   product: ProductDetailsDTO
@@ -124,7 +124,7 @@ function handleOnChange(event: Event) {
 }
 
 async function addToCart() {
-  await cart.addProductToCart(props.product.sku, count.value)
+  await cart.addProductToCart(props.product.sku, props.product.id, count.value)
   alerts.addAlert({ message: 'Product added to cart', type: 'success' })
 }
 </script>
