@@ -6,7 +6,12 @@ export default defineNuxtConfig({
   },
   runtimeConfig: {
     service: 'magento',
-    token: 'f5W92Fz-9L5jEncdSNGeaYzCBhk0S50x'
+    token: '',
+    contentstack: {
+      apiKey: '',
+      deliveryToken: '',
+      environment: ''
+    }
   },
   app: {
     head: {
