@@ -32,7 +32,7 @@ export const mapMagentoProductDetails = (productVariantDetails: MagentoProductVa
   const colorsOption = productDetails.extension_attributes?.configurable_product_options.find(attr => attr.attribute_id === '93')
 
   return {
-    id: productVariantDetails.id,
+    id: productVariantDetails.id.toString(),
     name: productVariantDetails.name,
     description: productVariantDetails.custom_attributes?.find(attr => attr.attribute_code === 'description')?.value || '',
     price: productVariantDetails.price,
@@ -49,8 +49,8 @@ export const mapMagentoProductDetails = (productVariantDetails: MagentoProductVa
 
       return acc
     }, [] as string[]) || [],
-    sizes: sizesOption ? sizesOption.values.map(val => val.value_index) : [],
-    colors: colorsOption ? colorsOption.values.map(val => val.value_index) : [],
+    sizes: sizesOption ? sizesOption.values.map(val => val.value_index.toString()) : [],
+    colors: colorsOption ? colorsOption.values.map(val => val.value_index.toString()) : [],
   }
 }
 

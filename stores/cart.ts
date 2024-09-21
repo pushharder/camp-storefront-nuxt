@@ -1,11 +1,13 @@
 import { defineStore } from 'pinia'
 import api from '~/api/api'
-import type { Address, Cart, CartLineItemsInner } from '~/types/interfaces'
+import type { Address, CartLineItemsInner } from '~/types/interfaces'
 import { getStorage } from '~/utils/localStorage'
 import * as mockedCart from '~/utils/mockedCartApi'
+import type { Cart } from '~/types/api/bff/v1/carts.types'
 
 interface State {
     cart: Cart;
+    cartId: string;
     address?: Address;
     orderId?: string;
 }
@@ -15,38 +17,29 @@ export default defineStore('cart', {
         cart: {
             lineItems: [],
             version: 0,
-        }
+        },
+        cartId: '',
     }),
     actions: {
         loadCart(): void {
-            if (getStorage().getItem('camp_cart')) {
-                this.cart = JSON.parse(getStorage().getItem('camp_cart') as string)
-                // Refresh cart from server
-                this.loadById(this.cart.id as string)
+            const cartId = JSON.parse(getStorage().getItem('camp_cart') as string)
+            if (cartId) {
+                this.loadById(cartId)
             } else {
                 this.createNewCart()
             }
-
-            // Load the cart from the server
         },
         async createNewCart(): Promise<void> {
             try {
-                const response = await api<Cart>({
+                const response = await api<string>({
                     url: '/carts',
                     method: 'post'
                 })
-
-                this.cart = response.data
+                this.cacheCart(response.data)
+                this.loadCart()
             } catch (error) {
-                // TBD, make a error message
-                // Throw a error message
-                console.error(error)
-
                 console.info('Error creating a new cart. Falling back to mocked cart')
-                this.cart = mockedCart.createCart()
             }
-
-            this.cacheCart()
         },
         async loadById(id: string): Promise<void> {
             try {
@@ -57,26 +50,22 @@ export default defineStore('cart', {
 
                 this.cart = response.data
             } catch (error) {
-                // TBD, make a error message
-                // Throw a error message
                 console.error(error)
 
                 console.info('Error loading cart. Falling back to mocked cart')
-                this.cart = mockedCart.loadById(id)
             }
-
-            this.cacheCart()
         },
-        async addProductToCart(productSKU: string, quantity: number): Promise<void> {
+        async addProductToCart(productSKU: string, productId: string, quantity: number): Promise<void> {
             try {
                 await api<Cart>({
                     url: `/carts/${this.cart.id}`,
                     method: 'put',
                     data: {
-                        version: (this.cart.version || 0) + 1,
+                        version: this.cart.version,
                         action: 'AddLineItem',
                         AddLineItem: {
                             variantId: productSKU,
+                            productId: productId,
                             quantity
                         }
                     }
@@ -90,7 +79,7 @@ export default defineStore('cart', {
                 console.error(error)
 
                 console.info('Error adding product to cart. Falling back to mocked cart')
-                mockedCart.addProductToCart(productSKU, quantity)
+                // mockedCart.addProductToCart(productSKU, quantity)
             }
 
             await this.loadById(this.cart.id as string)
@@ -101,7 +90,7 @@ export default defineStore('cart', {
                     url: `/carts/${this.cart.id}`,
                     method: 'put',
                     data: {
-                        version: (this.cart.version || 0) + 1,
+                        version: this.cart.version,
                         action: 'ChangeLineItemQuantity',
                         ChangeLineItemQuantity: {
                             lineItemId: lineItem.id,
@@ -129,7 +118,7 @@ export default defineStore('cart', {
                     url: `/carts/${this.cart.id}`,
                     method: 'put',
                     data: {
-                        version: (this.cart.version || 0) + 1,
+                        version: this.cart.version,
                         action: 'RemoveLineItem',
                         RemoveLineItem: {
                             lineItemId: lineItem.id,
@@ -158,7 +147,7 @@ export default defineStore('cart', {
                     url: `/carts/${this.cart.id}`,
                     method: 'put',
                     data: {
-                        version: (this.cart.version || 0) + 1,
+                        version: this.cart.version,
                         action: 'SetShippingAddress',
                         SetShippingAddress: address
                     }
@@ -166,7 +155,7 @@ export default defineStore('cart', {
 
                 await this.loadById(this.cart.id as string)
                 // to do - add line item to cart
-                this.cacheCart()
+                this.cacheCart(this.cart.id as string)
 
                 this.address = address
             } catch (error) {
@@ -175,7 +164,6 @@ export default defineStore('cart', {
                 console.error(error)
 
                 console.info('Error setting address. Falling back to mocked cart')
-                // But we don't any where
                 this.address = address
             }
         },
@@ -185,7 +173,9 @@ export default defineStore('cart', {
                 const order = await api<Cart>({
                     url: `/carts/${this.cart.id}/order`,
                     method: 'post',
-                    data: {}
+                    data: {
+                        version: this.cart.version,
+                    }
                 })
 
                 this.orderId = order.data.id
@@ -203,8 +193,8 @@ export default defineStore('cart', {
             this.clearCart()
         },
 
-        cacheCart(): void {
-            getStorage().setItem('camp_cart', JSON.stringify(this.cart))
+        cacheCart(cartId: string): void {
+            getStorage().setItem('camp_cart', JSON.stringify(cartId))
         },
 
         clearCart(): void {
